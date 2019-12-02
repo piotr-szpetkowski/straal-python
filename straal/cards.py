@@ -43,3 +43,7 @@ class Card(ApiObject):
             expiry_month=expiry_month,
             origin_ipaddr=origin_ipaddr,
         )
+
+    @classmethod
+    def get(cls, id: str) -> "Card":
+        return super().get(idx=id)

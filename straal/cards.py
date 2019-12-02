@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from straal.base import ApiObject
 
@@ -11,8 +11,6 @@ class Card(ApiObject):
     id: str
     created_at: int
     state: str
-    state_flags: list
-    transactions: list
     brand: str
     name: str
     num_bin: str
@@ -20,8 +18,10 @@ class Card(ApiObject):
     expiry_month: int
     expiry_year: int
     origin_ipaddr: str
-    customer: dict
-    extra_data: dict
+    customer: dict = field(repr=False)
+    extra_data: dict = field(repr=False)
+    state_flags: list = field(repr=False)
+    transactions: list = field(default=None, repr=False)
 
     @classmethod
     def create(

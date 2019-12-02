@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 from straal.base import ApiObject
 
 
 @dataclass
 class Customer(ApiObject):
-    RESOURCE_URI = "/v1/customers"
+    RESOURCE_CREATE_URI = "/v1/customers"
+    RESOURCE_DETAIL_URI = "/v1/customers/{idx}"
+    RESOURCE_LIST_URI = "/v1/customers"
     id: str
     created_at: int
     email: str

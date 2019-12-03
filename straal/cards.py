@@ -47,3 +47,7 @@ class Card(ApiObject):
     @classmethod
     def get(cls, id: str) -> "Card":
         return super().get(idx=id)
+
+    @classmethod
+    def list(cls) -> "Card":
+        return super().list()

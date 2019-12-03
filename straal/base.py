@@ -44,6 +44,6 @@ class ApiObject(ABC):
 
     @classmethod
     def list(cls: Type[T], **kwargs) -> List[T]:
-        req_url, _ = _build_request_data(cls.RESOURCE_CREATE_URI, **kwargs)
+        req_url, _ = _build_request_data(cls.RESOURCE_LIST_URI, **kwargs)
         res = requests.get(req_url, auth=("", API_KEY))
         return [cls(**entry) for entry in res.json()["data"]]

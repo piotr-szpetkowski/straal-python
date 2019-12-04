@@ -16,13 +16,8 @@ class CardTransaction(ApiObject):
     RESOURCE_CREATE_URI = "/v1/cards/{card_id}/transactions"
     RESOURCE_DETAIL_URI = "/v1/transactions/{idx}"
     RESOURCE_LIST_URI = "/v1/transactions"
+    # API PRIMITIVE FIELDS
     id: str
-    card: dict
-    captures: list
-    refunds: list
-    voids: list
-    attempts: list
-    created_at: datetime.datetime = field(repr=False)
     amount: int
     currency: str
     authorized: bool
@@ -30,8 +25,15 @@ class CardTransaction(ApiObject):
     refunded: bool
     voided: bool
     method: str
-    extra_data: dict
     reference: str
+    # COMPOUND FIELDS
+    card: dict = field(repr=False)
+    captures: list = field(repr=False)
+    refunds: list = field(repr=False)
+    voids: list = field(repr=False)
+    attempts: list = field(repr=False)
+    created_at: datetime.datetime = field(repr=False)
+    extra_data: dict = field(repr=False)
     chargeback: Optional[dict] = field(default=None, repr=False)
     order_reference: Optional[str] = field(default=None, repr=False)
     decline_reason: Optional[dict] = field(default=None, repr=False)

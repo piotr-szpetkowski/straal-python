@@ -27,15 +27,15 @@ class CardTransaction(ApiObject):
     method: str
     reference: str
     # COMPOUND FIELDS
-    card: dict = field(repr=False)
     captures: list = field(repr=False)
     refunds: list = field(repr=False)
     voids: list = field(repr=False)
     attempts: list = field(repr=False)
     created_at: datetime.datetime = field(repr=False)
     extra_data: dict = field(repr=False)
-    chargeback: Optional[dict] = field(default=None, repr=False)
     order_reference: Optional[str] = field(default=None, repr=False)
+    card: Optional[dict] = field(default=None, repr=False)
+    chargeback: Optional[dict] = field(default=None, repr=False)
     decline_reason: Optional[dict] = field(default=None, repr=False)
     errors: Optional[list] = field(default=None, repr=False)
 

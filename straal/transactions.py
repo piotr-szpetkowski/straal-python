@@ -57,3 +57,11 @@ class CardTransaction(ApiObject):
             reference=reference,
             initiated_by=initiated_by.value,
         )
+
+    @classmethod
+    def get(cls, id: str) -> "CardTransaction":
+        return super().get(idx=id)
+
+    @classmethod
+    def list(cls) -> "CardTransaction":
+        return super().list()

@@ -36,6 +36,9 @@ class CardTransaction(ApiObject):
     order_reference: Optional[str] = field(default=None, repr=False)
     decline_reason: Optional[dict] = field(default=None, repr=False)
 
+    def __post_init__(self):
+        self.created_at = datetime.datetime.utcfromtimestamp(self.created_at)
+
     @classmethod
     def create(
         cls,

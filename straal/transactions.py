@@ -15,7 +15,7 @@ class InitiatedBy(enum.Enum):
 class CardTransaction(ApiObject):
     RESOURCE_CREATE_URI = "/v1/cards/{card_id}/transactions"
     RESOURCE_DETAIL_URI = "/v1/transactions/{idx}"
-    RESOURCE_LIST_URI = "/v1/transactions"
+    RESOURCE_LIST_URI = "/v1/transactions?method__eq=card"
     # API PRIMITIVE FIELDS
     id: str
     amount: int

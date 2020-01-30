@@ -1,2 +1,4 @@
-API_KEY = None
-BASE_URL = "https://api.straal.com/"
+from straal.base import get_api_key, get_base_url, init
+from straal.customers import Customer
+
+__all__ = ["init", "Customer"]

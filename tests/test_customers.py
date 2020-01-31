@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import responses
 
@@ -13,6 +14,14 @@ def test_customer_create_success(straal_base_url, customer_json):
     customer = straal.Customer.create(
         email=customer_json["email"], reference=customer_json["reference"]
     )
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {
+        "email": customer_json["email"],
+        "reference": customer_json["reference"],
+    }
+
     assert customer.id == customer_json["id"]
     assert customer.email == customer_json["email"]
     assert customer.reference == customer_json["reference"]
@@ -28,6 +37,11 @@ def test_customer_create_without_reference_success(straal_base_url, customer_jso
     responses.add(responses.POST, url, json=customer_json)
 
     customer = straal.Customer.create(email=customer_json["email"])
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": customer_json["email"]}
+
     assert customer.id == customer_json["id"]
     assert customer.email == customer_json["email"]
     assert customer.reference is None
@@ -42,6 +56,11 @@ def test_existing_customer_get_success(straal_base_url, customer_json):
     responses.add(responses.GET, url, json=customer_json)
 
     customer = straal.Customer.get(customer_json["id"])
+
+    assert len(responses.calls) == 1
+    straal_request = responses.calls[0].request
+    assert straal_request.body is None
+
     assert customer.id == customer_json["id"]
     assert customer.email == customer_json["email"]
     assert customer.reference == customer_json["reference"]
@@ -56,6 +75,11 @@ def test_list_customers_success(straal_base_url, customer_list_json):
     responses.add(responses.GET, url, json=customer_list_json)
 
     customer_list = straal.Customer.list()
+
+    assert len(responses.calls) == 1
+    straal_request = responses.calls[0].request
+    assert straal_request.body is None
+
     assert isinstance(customer_list, list)
     assert len(customer_list) == 2
 

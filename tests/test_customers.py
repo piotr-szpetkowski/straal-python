@@ -9,6 +9,111 @@ from straal import exceptions
 
 
 @responses.activate
+def test_customer_create_missing_email_fail(straal_base_url):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {"errors": [{"code": 12001, "message": "Missing customer email"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.customer.MissingCustomerEmail):
+        straal.Customer.create(email=None)
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": None}
+
+
+@responses.activate
+def test_customer_create_invalid_email_fail(straal_base_url):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {"errors": [{"code": 12002, "message": "Invalid email"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    invalid_email = "customer@invalid"
+    with pytest.raises(exceptions.customer.InvalidEmail):
+        straal.Customer.create(email=invalid_email)
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": invalid_email}
+
+
+@responses.activate
+def test_customer_create_email_too_long_fail(straal_base_url):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {
+        "errors": [{"code": 12003, "message": "Customer email too long (maxlen: 150)"}]
+    }
+
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    incredibly_long_email = f"{'a' * 150}@example.net"
+    with pytest.raises(exceptions.customer.EmailTooLong):
+        straal.Customer.create(email=incredibly_long_email)
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": incredibly_long_email}
+
+
+@responses.activate
+def test_customer_create_email_too_short_fail(straal_base_url):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {
+        "errors": [
+            {"code": 12004, "message": "Customer email too short (minlen: 5)"},
+            {"code": 12002, "message": "Invalid email"},
+        ]
+    }
+
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.customer.EmailTooShort):
+        straal.Customer.create(email="a@b")
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": "a@b"}
+
+
+@responses.activate
+def test_customer_create_reference_exists_fail(straal_base_url, customer_json):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {
+        "errors": [
+            {"code": 12005, "message": "Customer with this reference already exists"}
+        ]
+    }
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    reference = "existing-reference"
+    with pytest.raises(exceptions.customer.ReferenceAlreadyExists):
+        straal.Customer.create(email=customer_json["email"], reference=reference)
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": customer_json["email"], "reference": reference}
+
+
+@responses.activate
+def test_customer_create_reference_too_long_fail(straal_base_url, customer_json):
+    url = fr"{straal_base_url}v1/customers"
+    err_json = {
+        "errors": [
+            {"code": 12006, "message": "Customer reference too long (maxlen: 32)"}
+        ]
+    }
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    reference = "A" * 33
+    with pytest.raises(exceptions.customer.ReferenceTooLong):
+        straal.Customer.create(email=customer_json["email"], reference=reference)
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {"email": customer_json["email"], "reference": reference}
+
+
+@responses.activate
 def test_customer_create_success(straal_base_url, customer_json):
     url = fr"{straal_base_url}v1/customers"
     responses.add(responses.POST, url, json=customer_json)
@@ -30,44 +135,6 @@ def test_customer_create_success(straal_base_url, customer_json):
     created_at = datetime.datetime.utcfromtimestamp(customer_json["created_at"])
     assert customer.created_at == created_at
     assert customer.last_transaction is None
-
-
-@responses.activate
-def test_customer_create_reference_too_long_fail(straal_base_url, customer_json):
-    url = fr"{straal_base_url}v1/customers"
-    err_json = {
-        "errors": [
-            {"code": 12006, "message": "Customer reference too long (maxlen: 32)"}
-        ]
-    }
-    responses.add(responses.POST, url, json=err_json, status=400)
-
-    reference = "A" * 33
-    with pytest.raises(exceptions.ReferenceTooLong):
-        straal.Customer.create(email=customer_json["email"], reference=reference)
-
-    assert len(responses.calls) == 1
-    straal_request = json.loads(responses.calls[0].request.body)
-    assert straal_request == {"email": customer_json["email"], "reference": reference}
-
-
-@responses.activate
-def test_customer_create_reference_exists_fail(straal_base_url, customer_json):
-    url = fr"{straal_base_url}v1/customers"
-    err_json = {
-        "errors": [
-            {"code": 12005, "message": "Customer with this reference already exists"}
-        ]
-    }
-    responses.add(responses.POST, url, json=err_json, status=400)
-
-    reference = "existing-reference"
-    with pytest.raises(exceptions.ReferenceAlreadyExists):
-        straal.Customer.create(email=customer_json["email"], reference=reference)
-
-    assert len(responses.calls) == 1
-    straal_request = json.loads(responses.calls[0].request.body)
-    assert straal_request == {"email": customer_json["email"], "reference": reference}
 
 
 @responses.activate

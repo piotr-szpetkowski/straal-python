@@ -5,6 +5,8 @@ from urllib.parse import urljoin
 
 import requests
 
+from straal.exceptions import StraalException
+
 _API_KEY = None
 _BASE_URL = "https://api.straal.com/"
 T = TypeVar("T", bound="ApiObject")
@@ -42,6 +44,16 @@ def _build_request_data(uri: str, **kwargs):
     return req_url_tpl.format(**format_kwargs), kwargs
 
 
+def _handle_create_errors(response: requests.Response):
+    # naive assumption that we will always have JSON in res
+    error_json = response.json()
+    if "errors" in error_json:
+        # Right now only raise mapped exc from first error
+        # TODO: elegant way to propagate all received errors
+        err_code = error_json["errors"][0]["code"]
+        raise StraalException._REGISTRY[err_code]
+
+
 class ApiObject(ABC):
     RESOURCE_CREATE_URI: str
     RESOURCE_DETAIL_URI: str
@@ -51,6 +63,10 @@ class ApiObject(ABC):
     def create(cls: Type[T], **kwargs) -> T:
         req_url, json_data = _build_request_data(cls.RESOURCE_CREATE_URI, **kwargs)
         res = requests.post(req_url, json=json_data, auth=("", _API_KEY))
+
+        if res.status_code != 200:
+            _handle_create_errors(res)
+
         return cls(**res.json())
 
     @classmethod

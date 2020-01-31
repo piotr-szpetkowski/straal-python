@@ -20,8 +20,12 @@ class Customer(ApiObject):
         self.created_at = datetime.datetime.utcfromtimestamp(self.created_at)
 
     @classmethod
-    def create(cls, email: str, reference: str) -> "Customer":
-        return super().create(email=email, reference=reference)
+    def create(cls, email: str, reference: Optional[str] = None) -> "Customer":
+        create_kwargs = {"email": email}
+        if reference:
+            create_kwargs["reference"] = reference
+
+        return super().create(**create_kwargs)
 
     @classmethod
     def get(cls, id: str) -> "Customer":

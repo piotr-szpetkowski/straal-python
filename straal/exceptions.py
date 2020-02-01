@@ -1,4 +1,4 @@
-class StraalException(Exception):
+class StraalError(Exception):
     _REGISTRY = {}
 
     def __init_subclass__(cls, code: int, **kwargs):
@@ -14,20 +14,20 @@ class StraalException(Exception):
 
 
 class customer:
-    class MissingCustomerEmail(StraalException, code=12001):
+    class MissingCustomerEmail(StraalError, code=12001):
         ...
 
-    class InvalidEmail(StraalException, code=12002):
+    class InvalidEmail(StraalError, code=12002):
         ...
 
-    class EmailTooLong(StraalException, code=12003):
+    class EmailTooLong(StraalError, code=12003):
         ...
 
-    class EmailTooShort(StraalException, code=12004):
+    class EmailTooShort(StraalError, code=12004):
         ...
 
-    class ReferenceAlreadyExists(StraalException, code=12005):
+    class ReferenceAlreadyExists(StraalError, code=12005):
         ...
 
-    class ReferenceTooLong(StraalException, code=12006):
+    class ReferenceTooLong(StraalError, code=12006):
         ...

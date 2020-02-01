@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from straal.exceptions import StraalException
+from straal.exceptions import StraalError
 
 _API_KEY = None
 _BASE_URL = "https://api.straal.com/"
@@ -51,7 +51,7 @@ def _handle_create_errors(response: requests.Response):
         # Right now only raise mapped exc from first error
         # TODO: elegant way to propagate all received errors
         err_code = error_json["errors"][0]["code"]
-        raise StraalException._REGISTRY[err_code]
+        raise StraalError._REGISTRY[err_code]
 
 
 class ApiObject(ABC):

@@ -45,6 +45,9 @@ def test_card_create_for_customer_success(straal_base_url, visa_card_json):
     assert card.state == CardState.ACTIVE
     created_at = datetime.datetime.utcfromtimestamp(visa_card_json["created_at"])
     assert card.created_at == created_at
+    assert card.customer == visa_card_json["customer"]
+    assert card.extra_data == {}
+    assert card.straal_custom_data == {}
     assert card.state_flags == []
     assert card.transactions == []
     assert card.is_active is True

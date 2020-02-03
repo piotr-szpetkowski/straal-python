@@ -38,6 +38,7 @@ class Card(ApiObject):
     created_at: datetime.datetime = field(repr=False)
     customer: dict = field(repr=False)
     extra_data: dict = field(repr=False)
+    straal_custom_data: dict = field(repr=False)
     state_flags: list = field(repr=False)
     transactions: list = field(default=None, repr=False)
     # VIRTUAL FIELDS

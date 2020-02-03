@@ -3,6 +3,9 @@ from setuptools import find_packages, setup
 with open("README.md", "r") as f:
     readme = f.read()
 
+
+testing_reqs = ["pytest==5.3.5", "responses==0.10.9"]
+
 setup(
     name="straal",
     version="0.1.0",
@@ -14,6 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=["requests>=2.22.0"],
+    extras_require={"testing": testing_reqs},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Web Environment",

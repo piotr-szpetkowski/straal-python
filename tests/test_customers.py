@@ -205,3 +205,18 @@ def test_list_customers_success(straal_base_url, customer_list_json):
     created_at = datetime.datetime.utcfromtimestamp(created_at_ts)
     assert customer_list[1].created_at == created_at
     assert customer_list[1].last_transaction is None
+
+
+@responses.activate
+def test_list_customers_empty_success(straal_base_url):
+    url = fr"{straal_base_url}v1/customers"
+    empty_list_json = {"page": 1, "per_page": 30, "total_count": 0, "data": []}
+    responses.add(responses.GET, url, json=empty_list_json)
+
+    customer_list = straal.Customer.list()
+
+    assert len(responses.calls) == 1
+    straal_request = responses.calls[0].request
+    assert straal_request.body is None
+
+    assert customer_list == []

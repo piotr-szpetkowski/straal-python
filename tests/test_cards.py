@@ -8,7 +8,7 @@ from straal.cards import CardBrand, CardState
 
 
 @responses.activate
-def test_customer_create_success(straal_base_url, visa_card_json):
+def test_card_create_for_customer_success(straal_base_url, visa_card_json):
     customer_id = visa_card_json["customer"]["id"]
     url = fr"{straal_base_url}v1/customers/{customer_id}/cards"
     responses.add(responses.POST, url, json=visa_card_json)

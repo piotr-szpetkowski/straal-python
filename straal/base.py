@@ -29,9 +29,18 @@ def init(api_key: str, base_url: Optional[str] = None):
     if base_url is not None:
         _CONFIG["base_url"] = base_url
 
+    _CONFIG["initialized"] = True
+
 
 def is_configured():
     return _CONFIG["initialized"] is True
+
+
+def _app_sanity_check():
+    if not is_configured():
+        raise RuntimeError(
+            'Straal SDK has not been configured - run straal.init("your_api_key")'
+        )
 
 
 def _get_required_format_vars(url: str) -> List[str]:
@@ -66,6 +75,7 @@ class ApiObject(ABC):
 
     @classmethod
     def create(cls: Type[T], **kwargs) -> T:
+        _app_sanity_check()
         req_url, json_data = _build_request_data(cls.RESOURCE_CREATE_URI, **kwargs)
         res = requests.post(req_url, json=json_data, auth=("", _CONFIG["api_key"]))
 
@@ -76,12 +86,14 @@ class ApiObject(ABC):
 
     @classmethod
     def get(cls: Type[T], **kwargs) -> T:
+        _app_sanity_check()
         req_url, _ = _build_request_data(cls.RESOURCE_DETAIL_URI, **kwargs)
         res = requests.get(req_url, auth=("", _CONFIG["api_key"]))
         return cls(**res.json())
 
     @classmethod
     def list(cls: Type[T], **kwargs) -> List[T]:
+        _app_sanity_check()
         req_url, _ = _build_request_data(cls.RESOURCE_LIST_URI, **kwargs)
         res = requests.get(req_url, auth=("", _CONFIG["api_key"]))
         return [cls(**entry) for entry in res.json()["data"]]

@@ -1,10 +1,132 @@
 import datetime
 import json
 
+import pytest
 import responses
 
 import straal
+from straal import exceptions
 from straal.cards import CardBrand, CardState
+
+
+@responses.activate
+def test_card_create_invalid_number_fail(straal_base_url, visa_card_json):
+    customer_id = visa_card_json["customer"]["id"]
+    url = fr"{straal_base_url}v1/customers/{customer_id}/cards"
+    err_json = {"errors": [{"code": 10111, "message": "Invalid card number"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.card.InvalidNumber):
+        straal.Card.create(
+            customer_id=customer_id,
+            name=visa_card_json["name"],
+            number="1337",
+            cvv="123",
+            expiry_year=visa_card_json["expiry_year"],
+            expiry_month=visa_card_json["expiry_month"],
+            origin_ipaddr=visa_card_json["origin_ipaddr"],
+        )
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {
+        "name": visa_card_json["name"],
+        "number": "1337",
+        "cvv": "123",
+        "expiry_year": visa_card_json["expiry_year"],
+        "expiry_month": visa_card_json["expiry_month"],
+        "origin_ipaddr": visa_card_json["origin_ipaddr"],
+    }
+
+
+@responses.activate
+def test_card_create_invalid_expiry_year_fail(straal_base_url, visa_card_json):
+    customer_id = visa_card_json["customer"]["id"]
+    url = fr"{straal_base_url}v1/customers/{customer_id}/cards"
+    err_json = {"errors": [{"code": 10112, "message": "Invalid expiry year value"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.card.InvalidExpiryYear):
+        straal.Card.create(
+            customer_id=customer_id,
+            name=visa_card_json["name"],
+            number="4444444444444448",
+            cvv="123",
+            expiry_year="7e4",
+            expiry_month=visa_card_json["expiry_month"],
+            origin_ipaddr=visa_card_json["origin_ipaddr"],
+        )
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {
+        "name": visa_card_json["name"],
+        "number": "4444444444444448",
+        "cvv": "123",
+        "expiry_year": "7e4",
+        "expiry_month": visa_card_json["expiry_month"],
+        "origin_ipaddr": visa_card_json["origin_ipaddr"],
+    }
+
+
+@responses.activate
+def test_card_create_invalid_expiry_month_fail(straal_base_url, visa_card_json):
+    customer_id = visa_card_json["customer"]["id"]
+    url = fr"{straal_base_url}v1/customers/{customer_id}/cards"
+    err_json = {"errors": [{"code": 10113, "message": "Invalid expiry month value"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.card.InvalidExpiryMonth):
+        straal.Card.create(
+            customer_id=customer_id,
+            name=visa_card_json["name"],
+            number="4444444444444448",
+            cvv="123",
+            expiry_year=visa_card_json["expiry_year"],
+            expiry_month="a",
+            origin_ipaddr=visa_card_json["origin_ipaddr"],
+        )
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {
+        "name": visa_card_json["name"],
+        "number": "4444444444444448",
+        "cvv": "123",
+        "expiry_year": visa_card_json["expiry_year"],
+        "expiry_month": "a",
+        "origin_ipaddr": visa_card_json["origin_ipaddr"],
+    }
+
+
+@responses.activate
+def test_card_create_invalid_cvv_fail(straal_base_url, visa_card_json):
+    customer_id = visa_card_json["customer"]["id"]
+    url = fr"{straal_base_url}v1/customers/{customer_id}/cards"
+    err_json = {"errors": [{"code": 10114, "message": "Invalid CVV/CVC value"}]}
+    responses.add(responses.POST, url, json=err_json, status=400)
+
+    with pytest.raises(exceptions.card.InvalidCVV):
+        straal.Card.create(
+            customer_id=customer_id,
+            name=visa_card_json["name"],
+            number="4444444444444448",
+            cvv="ABC",
+            expiry_year=visa_card_json["expiry_year"],
+            expiry_month=visa_card_json["expiry_month"],
+            origin_ipaddr=visa_card_json["origin_ipaddr"],
+        )
+
+    assert len(responses.calls) == 1
+    straal_request = json.loads(responses.calls[0].request.body)
+    assert straal_request == {
+        "name": visa_card_json["name"],
+        "number": "4444444444444448",
+        "cvv": "ABC",
+        "expiry_year": visa_card_json["expiry_year"],
+        "expiry_month": visa_card_json["expiry_month"],
+        "origin_ipaddr": visa_card_json["origin_ipaddr"],
+    }
 
 
 @responses.activate
@@ -18,8 +140,8 @@ def test_card_create_for_customer_success(straal_base_url, visa_card_json):
         name=visa_card_json["name"],
         number="4444444444444448",
         cvv="123",
-        expiry_month=visa_card_json["expiry_month"],
         expiry_year=visa_card_json["expiry_year"],
+        expiry_month=visa_card_json["expiry_month"],
         origin_ipaddr=visa_card_json["origin_ipaddr"],
     )
 

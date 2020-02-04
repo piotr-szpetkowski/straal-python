@@ -13,6 +13,20 @@ class StraalError(Exception):
         cls._REGISTRY[code] = cls
 
 
+class card:
+    class InvalidNumber(StraalError, code=10111):
+        ...
+
+    class InvalidExpiryYear(StraalError, code=10112):
+        ...
+
+    class InvalidExpiryMonth(StraalError, code=10113):
+        ...
+
+    class InvalidCVV(StraalError, code=10114):
+        ...
+
+
 class customer:
     class MissingCustomerEmail(StraalError, code=12001):
         ...

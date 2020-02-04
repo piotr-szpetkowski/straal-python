@@ -7,26 +7,31 @@ import requests
 
 from straal.exceptions import StraalError
 
-_API_KEY = None
-_BASE_URL = "https://api.straal.com/"
 T = TypeVar("T", bound="ApiObject")
+
+_CONFIG = {
+    "api_key": None,
+    "base_url": "https://api.straal.com/",
+    "initialized": False,
+}
 
 
 def get_api_key() -> Optional[str]:
-    return _API_KEY
+    return _CONFIG["api_key"]
 
 
 def get_base_url() -> Optional[str]:
-    return _BASE_URL
+    return _CONFIG["base_url"]
 
 
 def init(api_key: str, base_url: Optional[str] = None):
-    global _API_KEY
-    _API_KEY = api_key
+    _CONFIG["api_key"] = api_key
+    if base_url is not None:
+        _CONFIG["base_url"] = base_url
 
-    if base_url:
-        global _BASE_URL
-        _BASE_URL = base_url
+
+def is_configured():
+    return _CONFIG["initialized"] is True
 
 
 def _get_required_format_vars(url: str) -> List[str]:
@@ -34,7 +39,7 @@ def _get_required_format_vars(url: str) -> List[str]:
 
 
 def _build_request_data(uri: str, **kwargs):
-    req_url_tpl = urljoin(_BASE_URL, uri)
+    req_url_tpl = urljoin(_CONFIG["base_url"], uri)
     required_format_vars = _get_required_format_vars(req_url_tpl)
     # TODO: Provide better exc with proper ctx instead of KeyError
     format_kwargs = {k: kwargs[k] for k in required_format_vars}
@@ -62,7 +67,7 @@ class ApiObject(ABC):
     @classmethod
     def create(cls: Type[T], **kwargs) -> T:
         req_url, json_data = _build_request_data(cls.RESOURCE_CREATE_URI, **kwargs)
-        res = requests.post(req_url, json=json_data, auth=("", _API_KEY))
+        res = requests.post(req_url, json=json_data, auth=("", _CONFIG["api_key"]))
 
         if res.status_code != 200:
             _handle_create_errors(res)
@@ -72,11 +77,11 @@ class ApiObject(ABC):
     @classmethod
     def get(cls: Type[T], **kwargs) -> T:
         req_url, _ = _build_request_data(cls.RESOURCE_DETAIL_URI, **kwargs)
-        res = requests.get(req_url, auth=("", _API_KEY))
+        res = requests.get(req_url, auth=("", _CONFIG["api_key"]))
         return cls(**res.json())
 
     @classmethod
     def list(cls: Type[T], **kwargs) -> List[T]:
         req_url, _ = _build_request_data(cls.RESOURCE_LIST_URI, **kwargs)
-        res = requests.get(req_url, auth=("", _API_KEY))
+        res = requests.get(req_url, auth=("", _CONFIG["api_key"]))
         return [cls(**entry) for entry in res.json()["data"]]

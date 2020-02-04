@@ -1,9 +1,9 @@
 import datetime
 import json
 
+import pytest
 import responses
 
-import pytest
 import straal
 from straal import exceptions
 

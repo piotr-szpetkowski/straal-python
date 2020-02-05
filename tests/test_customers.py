@@ -220,3 +220,25 @@ def test_list_customers_empty_success(straal_base_url):
     assert straal_request.body is None
 
     assert customer_list == []
+
+
+@responses.activate
+def test_list_customers_invalid_filter_fail(straal_base_url, customer_list_json):
+    url = fr"{straal_base_url}v1/customers"
+    responses.add(responses.GET, url, json=customer_list_json)
+
+    with pytest.raises(RuntimeError):
+        straal.Customer.list("id==100")
+
+    assert len(responses.calls) == 0
+
+
+@responses.activate
+def test_list_customers_filter_kwarg_fail(straal_base_url, customer_list_json):
+    url = fr"{straal_base_url}v1/customers"
+    responses.add(responses.GET, url, json=customer_list_json)
+
+    with pytest.raises(TypeError):
+        straal.Customer.list(filters=["id==100"])
+
+    assert len(responses.calls) == 0

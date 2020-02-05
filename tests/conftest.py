@@ -16,7 +16,7 @@ def env_test_setup(monkeypatch, straal_base_url):
     straal.init("DUMMY_TEST_API_KEY", straal_base_url)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def customer_json():
     return {
         "id": "cus_123",
@@ -26,7 +26,7 @@ def customer_json():
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def customer_list_json():
     return {
         "page": 1,
@@ -49,7 +49,7 @@ def customer_list_json():
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def visa_card_json():
     return {
         "id": "card_123",

@@ -14,15 +14,15 @@ class Op(enum.Enum):
 
 class FilterInstance:
     def __init__(self, name, operator: Op, value):
-        self._name = name
+        self.name = name
         self._op = operator
         self._value = value
 
     def build_api_param(self):
-        return f"{self._name}__{self._op.value}={self._value}"
+        return {f"{self.name}__{self._op.value}": self._value}
 
     def __repr__(self):
-        return f"{self._name} {self._op.name} {self._value}"
+        return f"{self.name} {self._op.name} {self._value}"
 
 
 class Filter:

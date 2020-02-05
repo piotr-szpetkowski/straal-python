@@ -10,6 +10,8 @@ class Customer(ApiObject):
     RESOURCE_CREATE_URI = "/v1/customers"
     RESOURCE_DETAIL_URI = "/v1/customers/{idx}"
     RESOURCE_LIST_URI = "/v1/customers"
+    FILTERS = ["id"]
+
     id: str
     email: str
     reference: str
@@ -32,5 +34,5 @@ class Customer(ApiObject):
         return super().get(idx=id)
 
     @classmethod
-    def list(cls) -> List["Customer"]:
-        return super().list()
+    def list(cls, *filters) -> List["Customer"]:
+        return super().list(*filters)

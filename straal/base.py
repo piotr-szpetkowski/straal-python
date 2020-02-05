@@ -58,6 +58,13 @@ def _build_request_data(uri: str, **kwargs):
     return req_url_tpl.format(**format_kwargs), kwargs
 
 
+def _serialize_filters(filters: list):
+    filter_params = {}
+    for obj in filters:
+        filter_params.update(obj.build_api_param())
+    return filter_params
+
+
 def _handle_create_errors(response: requests.Response):
     # naive assumption that we will always have JSON in res
     error_json = response.json()
@@ -72,6 +79,7 @@ class ApiObject(ABC):
     RESOURCE_CREATE_URI: str
     RESOURCE_DETAIL_URI: str
     RESOURCE_LIST_URI: str
+    FILTERS: List[str]
 
     @classmethod
     def create(cls: Type[T], **kwargs) -> T:
@@ -92,8 +100,17 @@ class ApiObject(ABC):
         return cls(**res.json())
 
     @classmethod
-    def list(cls: Type[T], **kwargs) -> List[T]:
+    def list(cls: Type[T], *filters, **kwargs) -> List[T]:
         _app_sanity_check()
+        cls._verify_filters(filters)
         req_url, _ = _build_request_data(cls.RESOURCE_LIST_URI, **kwargs)
-        res = requests.get(req_url, auth=("", _CONFIG["api_key"]))
+        filter_params = _serialize_filters(filters)
+
+        res = requests.get(req_url, params=filter_params, auth=("", _CONFIG["api_key"]))
         return [cls(**entry) for entry in res.json()["data"]]
+
+    @classmethod
+    def _verify_filters(cls: Type[T], filters):
+        for obj in filters:
+            if not hasattr(obj, "name") or obj.name not in cls.FILTERS:
+                raise RuntimeError("Provided filter value not allowed")

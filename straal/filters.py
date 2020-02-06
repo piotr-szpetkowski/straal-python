@@ -77,3 +77,5 @@ class SimpleFilter(Filter):
 
 class filters:
     ID = SimpleFilter(name="id")
+    Email = SimpleFilter(name="email")
+    Reference = SimpleFilter(name="reference")

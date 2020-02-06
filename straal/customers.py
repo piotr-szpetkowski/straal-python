@@ -10,7 +10,7 @@ class Customer(ApiObject):
     RESOURCE_CREATE_URI = "/v1/customers"
     RESOURCE_DETAIL_URI = "/v1/customers/{idx}"
     RESOURCE_LIST_URI = "/v1/customers"
-    FILTERS = ["id"]
+    FILTERS = ["id", "email", "reference"]
 
     id: str
     email: str

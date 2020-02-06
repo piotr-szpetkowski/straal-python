@@ -1,10 +1,20 @@
-from straal.filters import Op, SimpleFilter, FilterInstance
 import pytest
+
+from straal.filters import Filter, FilterInstance, Op, SimpleFilter
+
+
+class EmptyOpsFilter(Filter):
+    ops = []
 
 
 @pytest.fixture(scope="module")
 def foo_filter():
     return SimpleFilter("foo")
+
+
+@pytest.fixture(scope="module")
+def no_ops_filter():
+    return EmptyOpsFilter("nope")
 
 
 @pytest.mark.parametrize("operation", [f for f in Op])
@@ -19,3 +29,10 @@ def test_simple_filter_supports_op(operation, foo_filter):
 
     api_param = filter_instance.build_api_param()
     assert api_param == {f"{foo_filter._name}__{operation.value}": 123}
+
+
+@pytest.mark.parametrize("operation", [f for f in Op])
+def test_empty_ops_filter_supports_no_ops(operation, no_ops_filter):
+    op_method = f"__{operation.value}__"
+    with pytest.raises(NotImplementedError):
+        getattr(no_ops_filter, op_method)(123)

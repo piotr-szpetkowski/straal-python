@@ -245,6 +245,31 @@ def test_list_customers_filter_kwarg_fail(straal_base_url, customer_list_json):
 
 
 @responses.activate
+def test_list_customers_eq_filter_id_success(straal_base_url, customer_list_json):
+    customer_list_json["data"].pop(1)
+    customer_dict = customer_list_json["data"][0]
+    url = fr"{straal_base_url}v1/customers"
+    responses.add(responses.GET, url, json=customer_list_json)
+
+    customer_list = straal.Customer.list(straal.filters.ID == customer_dict["id"])
+
+    assert len(responses.calls) == 1
+    straal_request = responses.calls[0].request
+    assert straal_request.url == f"{url}?id__eq={customer_dict['id']}"
+    assert straal_request.body is None
+
+    assert isinstance(customer_list, list)
+    assert len(customer_list) == 1
+
+    assert customer_list[0].id == customer_dict["id"]
+    assert customer_list[0].email == customer_dict["email"]
+    assert customer_list[0].reference == customer_dict["reference"]
+    created_at = datetime.datetime.utcfromtimestamp(customer_dict["created_at"])
+    assert customer_list[0].created_at == created_at
+    assert customer_list[0].last_transaction is None
+
+
+@responses.activate
 def test_list_customers_ne_filter_id_success(straal_base_url, customer_list_json):
     customer_dict = customer_list_json["data"].pop(0)
     url = fr"{straal_base_url}v1/customers"

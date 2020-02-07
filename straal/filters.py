@@ -1,3 +1,4 @@
+import datetime
 import enum
 import functools
 from typing import List
@@ -38,11 +39,14 @@ class Filter:
     @classmethod
     def _define_requested_ops(cls):
         for op in cls.ops:
-            op_method = functools.partialmethod(cls._filter_op_impl, op=op)
+            op_method = functools.partialmethod(cls.get_filter_instance, op=op)
             func_name = f"__{op.value}__"
             setattr(cls, func_name, op_method)
 
     def _filter_op_impl(self, value, op: Op):
+        return self.get_filter_instance(value, op)
+
+    def get_filter_instance(self, value, op: Op):
         return FilterInstance(self._name, op, value)
 
     def __eq__(self, value):
@@ -75,7 +79,17 @@ class SimpleFilter(Filter):
     ]
 
 
+class DatetimeFilter(Filter):
+    ops = [Op.Equal, Op.NotEqual, Op.Less, Op.LessEqual, Op.Greater, Op.GreaterEqual]
+
+    def get_filter_instance(self, value: datetime.datetime, op: Op):
+        aware_dt = value.replace(tzinfo=datetime.timezone.utc)
+        timestamp = int(aware_dt.timestamp())
+        return FilterInstance(self._name, op, timestamp)
+
+
 class filters:
     ID = SimpleFilter(name="id")
+    CreatedAt = DatetimeFilter(name="created_at")
     Email = SimpleFilter(name="email")
     Reference = SimpleFilter(name="reference")

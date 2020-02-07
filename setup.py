@@ -8,7 +8,7 @@ testing_reqs = ["pytest==5.3.5", "responses==0.10.9"]
 
 setup(
     name="straal",
-    version="0.1.0",
+    version="0.2.0",
     author="Piotr Szpetkowski",
     url="https://github.com/piotr-szpetkowski/straal-python",
     license="Apache License, Version 2.0",
